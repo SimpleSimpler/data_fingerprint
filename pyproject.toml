@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data-compare"
+name = "data-fingerprint"
 version = "0.1.0"
 description = ""
 authors = ["SimpleSimpler"]
