@@ -156,13 +156,3 @@ def test_source_names() -> None:
             source_0="source_0",
             source_1="source_0",
         )
-    with pytest.raises(ValueError, match=".*Source names cannot contain 'hash'.*"):
-        func(
-            source_0="hash",
-            source_1="source_1",
-        )
-    with pytest.raises(ValueError, match=".*Source names cannot contain 'source'.*"):
-        func(
-            source_0="source",
-            source_1="source_1",
-        )

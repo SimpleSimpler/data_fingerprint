@@ -12,6 +12,7 @@ polars = "^1.26.0"
 pydantic = "^2.11.0"
 pytest = "^8.3.5"
 pyarrow = "^19.0.1"
+pdoc = "^15.0.1"
 
 
 [build-system]
