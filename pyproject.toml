@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "data-compare"
+version = "0.1.0"
+description = ""
+authors = ["SimpleSimpler"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.3"
+polars = "^1.26.0"
+pydantic = "^2.11.0"
+pytest = "^8.3.5"
+pyarrow = "^19.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
