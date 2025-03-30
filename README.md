@@ -25,28 +25,28 @@ pip install data-fingerprint
 
 Here's a basic example of how to use DataFingerprint to compare two datasets:
 ```python
-import pandas as pd
-from data_fingerprint import get_data_report
+import polars as pl
+
+from data_fingerprint.src.utils import get_dataframe
+from data_fingerprint.src.models import DataReport
 
 # Create two sample datasets
-df1 = pd.DataFrame({
+df1 = pl.DataFrame({
     'id': [1, 2, 3],
     'name': ['Alice', 'Bob', 'Charlie'],
     'age': [25, 30, 35]
 })
-df2 = pd.DataFrame({
+df2 = pl.DataFrame({
     'id': [1, 2, 4],
     'name': ['Alice', 'Bob', 'David'],
     'age': [25, 30, 40]
 })
 # Generate a data report comparing the two datasets
-report = get_data_report(df1, df2, 'df1', 'df2', 'id')
+report: DataReport = get_data_report(
+    df_0, df_1, "df_0", "df_1", pairing_columns=["a"]
+)
 print(report.model_dump_json(indent=4))
-
-# get differences in pandas.DataFrame format
-
-df = report.to_dataframe()
-print(df)
+print(get_dataframe(report))
 ```
 
 ## License

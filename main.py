@@ -5,9 +5,9 @@ import time
 import pandas as pd
 import polars as pl
 
-from data_compare.src.comparator import get_data_report
-from data_compare.src.models import DataReport
-from data_compare.src.utils import get_dataframe
+from data_fingerprint.src.comparator import get_data_report
+from data_fingerprint.src.models import DataReport
+from data_fingerprint.src.utils import get_dataframe
 
 if __name__ == "__main__":
     df_0 = pl.read_csv("samples/simple_0.csv", has_header=True)
