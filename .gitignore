@@ -2,3 +2,4 @@
 .venv
 .pytest_cache
 samples
+dist
