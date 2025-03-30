@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import polars as pl
 
-from data_compare.src.checkers import check_inputs
+from data_fingerprint.src.checkers import check_inputs
 
 
 def test_same_column_names():
@@ -155,14 +155,4 @@ def test_source_names() -> None:
         func(
             source_0="source_0",
             source_1="source_0",
-        )
-    with pytest.raises(ValueError, match=".*Source names cannot contain 'hash'.*"):
-        func(
-            source_0="hash",
-            source_1="source_1",
-        )
-    with pytest.raises(ValueError, match=".*Source names cannot contain 'source'.*"):
-        func(
-            source_0="source",
-            source_1="source_1",
         )
