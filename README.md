@@ -28,23 +28,18 @@ Here's a basic example of how to use DataFingerprint to compare two datasets:
 import polars as pl
 
 from data_fingerprint.src.utils import get_dataframe
+from data_fingerprint.src.comparator import get_data_report
 from data_fingerprint.src.models import DataReport
 
 # Create two sample datasets
-df1 = pl.DataFrame({
-    'id': [1, 2, 3],
-    'name': ['Alice', 'Bob', 'Charlie'],
-    'age': [25, 30, 35]
-})
-df2 = pl.DataFrame({
-    'id': [1, 2, 4],
-    'name': ['Alice', 'Bob', 'David'],
-    'age': [25, 30, 40]
-})
-# Generate a data report comparing the two datasets
-report: DataReport = get_data_report(
-    df_0, df_1, "df_0", "df_1", pairing_columns=["a"]
+df1 = pl.DataFrame(
+    {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
 )
+df2 = pl.DataFrame(
+    {"id": [1, 2, 4], "name": ["Alice", "Bob", "David"], "age": [25, 30, 40]}
+)
+# Generate a data report comparing the two datasets
+report: DataReport = get_data_report(df1, df2, "df_0", "df_1", grouping_columns=["id"])
 print(report.model_dump_json(indent=4))
 print(get_dataframe(report))
 ```
