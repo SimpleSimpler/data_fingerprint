@@ -2,15 +2,18 @@ from typing import Union, Optional
 
 import polars as pl
 
-from data_compare.src.models import (
+from data_fingerprint.src.models import (
     ColumnDifference,
     RowDifference,
     RowGroupDifference,
     DataReport,
 )
-from data_compare.src.utils import convert_to_polars, convert_row_differences_to_pandas
-from data_compare.src.checkers import check_inputs
-from data_compare.src.difference_types import (
+from data_fingerprint.src.utils import (
+    convert_to_polars,
+    convert_row_differences_to_pandas,
+)
+from data_fingerprint.src.checkers import check_inputs
+from data_fingerprint.src.difference_types import (
     ColumnNameDifferenceType,
     ColumnDataTypeDifferenceType,
     RowDifferenceType,

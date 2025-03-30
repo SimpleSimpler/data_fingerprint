@@ -3,7 +3,7 @@ from typing import Any, Optional, Union
 from pydantic import BaseModel, computed_field
 import polars as pl
 
-from data_compare.src.difference_types import (
+from data_fingerprint.src.difference_types import (
     ColumnNameDifferenceType,
     ColumnDataTypeDifferenceType,
     RowDifferenceType,

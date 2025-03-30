@@ -3,7 +3,7 @@ import warnings
 import pytest
 import pandas as pd
 import polars as pl
-from data_compare.src.utils import _convert_parameters_to_polars, convert_to_polars
+from data_fingerprint.src.utils import _convert_parameters_to_polars, convert_to_polars
 
 
 def test_convert_parameters_to_polars() -> None:

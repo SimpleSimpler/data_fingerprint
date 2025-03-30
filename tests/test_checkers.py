@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import polars as pl
 
-from data_compare.src.checkers import check_inputs
+from data_fingerprint.src.checkers import check_inputs
 
 
 def test_same_column_names():

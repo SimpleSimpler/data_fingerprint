@@ -5,15 +5,19 @@ import polars as pl
 import pandas as pd
 from zoneinfo import ZoneInfo
 
-from data_compare.src.comparator import (
+from data_fingerprint.src.comparator import (
     get_column_name_differences,
     get_column_dtype_differences,
     get_row_differences,
     get_row_differences_paired,
     get_data_report,
 )
-from data_compare.src.models import ColumnDifference, RowDifference, RowGroupDifference
-from data_compare.src.difference_types import (
+from data_fingerprint.src.models import (
+    ColumnDifference,
+    RowDifference,
+    RowGroupDifference,
+)
+from data_fingerprint.src.difference_types import (
     ColumnNameDifferenceType,
     ColumnDataTypeDifferenceType,
     RowDifferenceType,

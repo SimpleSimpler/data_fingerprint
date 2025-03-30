@@ -4,7 +4,7 @@ from typing import Callable, Any
 import polars as pl
 import pandas as pd
 
-from data_compare.src.models import RowDifference, DataReport
+from data_fingerprint.src.models import RowDifference, DataReport
 
 
 def _convert_parameters_to_polars(*args, **kwargs) -> tuple[tuple, dict]:
