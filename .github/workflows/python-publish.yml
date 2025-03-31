@@ -34,6 +34,12 @@ jobs:
           python -m poetry install
           python -m poetry build
 
+  pypi-publish:
+    needs:
+      - release-build
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Configure Poetry
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
