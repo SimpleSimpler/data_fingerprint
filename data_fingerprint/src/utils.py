@@ -4,7 +4,7 @@ from typing import Callable, Any
 import polars as pl
 import pandas as pd
 
-from data_fingerprint.src.models import RowDifference, DataReport
+from data_fingerprint.src.models import RowDifference, DataReport, RowGroupDifference
 
 
 def _convert_parameters_to_polars(*args, **kwargs) -> tuple[tuple, dict]:
@@ -134,3 +134,91 @@ def get_dataframe(data_report: DataReport) -> pl.DataFrame:
         return pl.DataFrame()
 
     return pl.concat(gathered_rows, how="vertical_relaxed")
+
+
+def get_number_of_row_differences(data_report: DataReport) -> int:
+    """
+    Get the number of row differences from a :class:`data_compare.src.models.DataReport` object."
+
+    Args:
+        data_report (:class:`data_compare.src.models.DataReport`): The :class:`data_compare.src.models.DataReport` object.
+
+    Returns:
+        int: The number of row differences.
+    """
+    return sum([rd.number_of_occurrences for rd in data_report.row_differences])
+
+
+def get_number_of_differences_per_source(data_report: DataReport) -> dict[str, int]:
+    """
+    Get the number of row differences per source from a :class:`data_compare.src.models.DataReport` object."
+
+    Args:
+        data_report (:class:`data_compare.src.models.DataReport`): The :class:`data_compare.src.models.DataReport` object.
+
+    Returns:
+        dict[str, int]: The number of row differences per source.
+    """
+    counter: dict[str, int] = {data_report.df0_name: 0, data_report.df1_name: 0}
+    for rd in data_report.row_differences:
+        if isinstance(rd, RowDifference):
+            counter[rd.source] += rd.number_of_occurrences
+            continue
+
+        counter[data_report.df0_name] += sum(
+            [1 for x in rd.consise_information["source"] if x == data_report.df0_name]
+        )
+        counter[data_report.df1_name] += sum(
+            [1 for x in rd.consise_information["source"] if x == data_report.df1_name]
+        )
+    return counter
+
+
+def get_ratio_of_differences_per_source(data_report: DataReport) -> dict[str, float]:
+    """
+    Get the ratio of row differences per source from a :class:`data_compare.src.models.DataReport` object.
+
+    Args:
+        data_report (:class:`data_compare.src.models.DataReport`): The :class:`data_compare.src.models.DataReport` object.
+
+    Returns:
+        dict[str, float]: The ratio of row differences per source.
+    """
+    counter: dict[str, int] = get_number_of_differences_per_source(data_report)
+    total_differences: int = sum(counter.values())
+    return {k: v / total_differences for k, v in counter.items()}
+
+
+def get_column_difference_ratio(data_report: DataReport) -> dict[str, float]:
+    """
+    Get the ratio of column differences per source from a :class:`data_compare.src.models.DataReport` object."
+
+    This function only works if the data report has grouping differences.
+    If not, it will return 0 for all columns.
+
+    Raises:
+        UserWarning: If no grouping differences are found.
+
+    Args:
+        data_report (:class:`data_compare.src.models.DataReport`): The :class:`data_compare.src.models.DataReport` object.
+
+    Returns:
+        dict[str, float]: The ratio of column differences per source.
+    """
+    counter: dict[str, int] = {column: 0 for column in data_report.comparable_columns}
+
+    for rd in data_report.row_differences:
+        if isinstance(rd, RowDifference):
+            continue
+
+        for column in rd.column_differences:
+            counter[column] += rd.number_of_occurrences
+
+    total_grouping_differences: int = sum(counter.values())
+    if total_grouping_differences == 0:
+        warnings.warn(
+            "No grouping differences found. Returning 0 for all columns.",
+            UserWarning,
+        )
+
+    return {k: v / total_grouping_differences for k, v in counter.items()}

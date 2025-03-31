@@ -23,6 +23,14 @@ from data_fingerprint.src.difference_types import (
     RowDifferenceType,
 )
 
+from data_fingerprint.src.utils import (
+    get_dataframe,
+    get_number_of_row_differences,
+    get_number_of_differences_per_source,
+    get_ratio_of_differences_per_source,
+    get_column_difference_ratio,
+)
+
 
 def test_get_column_name_differences():
     df0 = pl.DataFrame({"a": [1, 2], "b": [3, 4]})
@@ -399,9 +407,35 @@ def test_data_report():
     df0_name = "df0"
     df1_name = "df1"
     report = get_data_report(df0, df1, df0_name, df1_name, ["a"])
-    print(report.model_dump_json(indent=4))
-    assert report.number_of_row_differences == 4
-    assert report.number_of_differences_source_0 == 2
-    assert report.number_of_differences_source_0 == 2
-    assert report.ratio_of_difference_from_source_0 == 0.5
-    assert report.ratio_of_difference_from_source_1 == 0.5
+    assert get_number_of_row_differences(report) == 4
+    assert get_number_of_differences_per_source(report) == {df0_name: 2, df1_name: 2}
+    assert get_ratio_of_differences_per_source(report) == {df0_name: 0.5, df1_name: 0.5}
+    assert get_number_of_row_differences(report) == len(get_dataframe(report))
+
+
+def test_get_column_difference_ratio():
+    df0 = pl.DataFrame(
+        {
+            "a": [1, 2, 3, 4],
+            "b": [5, 6, 7, 8],
+            "c": [9, 10, 11, 12],
+            "d": [13, 14, 15, 16],
+        }
+    )
+    df1 = pl.DataFrame(
+        {
+            "a": [1, 2, 3, 4],
+            "b": [5, 6, 77, 8],
+            "c": [99, 10, 111, 122],
+            "d": [13, 14, 15, 16],
+        }
+    )
+    df0_name = "df0"
+    df1_name = "df1"
+    report = get_data_report(df0, df1, df0_name, df1_name, ["a"])
+    assert get_column_difference_ratio(report) == {
+        "a": 0.0,
+        "b": 0.25,
+        "c": 0.75,
+        "d": 0.0,
+    }

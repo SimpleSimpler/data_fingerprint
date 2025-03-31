@@ -14,6 +14,15 @@
 - **Paired Row Differences**: Compare rows that have the same primary key or unique identifier in both datasets and identify differences in their values.
 - **Data Report**: Generate a comprehensive report summarizing all the differences found between the two datasets.
 
+| function                                                        | purpose                                                                   | result                                 |
+|-----------------------------------------------------------------|---------------------------------------------------------------------------|----------------------------------------|
+| `data_fingerprint.src.comparator.get_data_report`                 | Get data report object that has all the information about the differences | `data_fingerprint.src.models.DataReport` |
+| `data_fingerprint.src.utils.get_dataframe`                        | Get polars.Dataframe of rows that are different (added source column)     | `polars.DataFrame`                       |
+| `data_fingerprint.src.utils.get_number_of_row_differences`        | Get the number of different rows                                          | `int`                                    |
+| `data_fingerprint.src.utils.get_number_of_differences_per_source` | Get the number of row differences per source                              | `dict[str, int]`                         |
+| `data_fingerprint.src.utils.get_ratio_of_differences_per_source`  | Get the ratio of row differences per source                               | `dict[str, float]`                       |
+| `data_fingerprint.src.utils.get_column_difference_ratio`          | [When grouping is used] Get the distribution of differences per column    | `dict[str, float]`                       |
+
 ## Installation
 
 To install DataFingerprint, you can use pip:
