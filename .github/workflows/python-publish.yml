@@ -44,4 +44,4 @@ jobs:
 
       - name: Publish package to PyPI
         run: |
-          python -m poetry publish --build --repository pypi
+          python -m poetry publish
