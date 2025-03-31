@@ -34,7 +34,7 @@ jobs:
           python -m pip install poetry
           python -m poetry config virtualenvs.in-project true
           python -m poetry install
-          python -m poetry config pypi-token.pypi "$env:PYPI_TOKEN"
+          python -m poetry config pypi-token.pypi $PYPI_TOKEN
           python -m poetry build
           python -m poetry publish
 
