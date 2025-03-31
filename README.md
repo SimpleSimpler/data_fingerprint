@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="items/SimpleSimpler_logo_green.svg" />
+  <img src="https://imgur.com/EvSWq14.png" />
 </p>
 
 # DataFingerprint
