@@ -36,12 +36,6 @@ jobs:
           python -m poetry build
         # This will create a dist/ folder with .tar.gz and .whl files
 
-      - name: Upload built distributions as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-package
-          path: dist/
-
       - name: Configure Poetry
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
