@@ -186,6 +186,11 @@ def get_ratio_of_differences_per_source(data_report: DataReport) -> dict[str, fl
     """
     counter: dict[str, int] = get_number_of_differences_per_source(data_report)
     total_differences: int = sum(counter.values())
+
+    if total_differences == 0:
+        warnings.warn("No differences found.", UserWarning)
+        return {k: 0 for k in counter.keys()}
+
     return {k: v / total_differences for k, v in counter.items()}
 
 
@@ -220,5 +225,6 @@ def get_column_difference_ratio(data_report: DataReport) -> dict[str, float]:
             "No grouping differences found. Returning 0 for all columns.",
             UserWarning,
         )
+        return {k: 0.0 for k in counter.keys()}
 
     return {k: v / total_grouping_differences for k, v in counter.items()}
