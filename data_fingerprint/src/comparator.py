@@ -298,6 +298,30 @@ def get_row_differences(
         df0, df1, df0_name, df1_name
     )
 
+    if len(same_columns) == 0:
+        return (
+            same_columns,
+            column_differences,
+            [
+                RowDifference(
+                    source=df0_name,
+                    row=x,
+                    number_of_occurrences=1,
+                    difference_type=RowDifferenceType.MISSING_ROW,
+                )
+                for x in df0.rows(named=True)
+            ]
+            + [
+                RowDifference(
+                    source=df1_name,
+                    row=x,
+                    number_of_occurrences=1,
+                    difference_type=RowDifferenceType.MISSING_ROW,
+                )
+                for x in df1.rows(named=True)
+            ],
+        )
+
     df0_subset: pl.DataFrame = df0.select(same_columns)
     df1_subset: pl.DataFrame = df1.select(same_columns)
 

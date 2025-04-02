@@ -473,3 +473,39 @@ def test_get_column_no_difference_report():
             "df0": 0.0,
             "df1": 0.0,
         }
+
+
+def test_no_same_columns():
+    df0 = pl.DataFrame(
+        {
+            "a": [1, 2, 3, 4],
+            "b": [5, 6, 7, 8],
+            "c": [9, 10, 11, 12],
+            "d": [13, 14, 15, 16],
+        }
+    )
+    df1 = pl.DataFrame(
+        {
+            "e": [1, 2, 3, 4],
+            "f": [5, 6, 7, 8],
+            "g": [9, 10, 11, 12],
+            "h": [13, 14, 15, 16],
+        }
+    )
+    df0_name = "df0"
+    df1_name = "df1"
+    report = get_data_report(df0, df1, df0_name, df1_name)
+    with pytest.warns(UserWarning):
+        assert get_dataframe(report).shape == (0, 0)
+
+    assert get_number_of_row_differences(report) == 8
+    assert get_number_of_differences_per_source(report) == {
+        "df0": 4,
+        "df1": 4,
+    }
+    assert get_ratio_of_differences_per_source(report) == {
+        "df0": 0.5,
+        "df1": 0.5,
+    }
+    with pytest.warns(UserWarning):
+        assert get_column_difference_ratio(report) == {}

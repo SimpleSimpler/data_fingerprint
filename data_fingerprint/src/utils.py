@@ -133,6 +133,10 @@ def get_dataframe(data_report: DataReport) -> pl.DataFrame:
     if len(gathered_rows) == 0:
         return pl.DataFrame()
 
+    if len(data_report.comparable_columns) == 0:
+        warnings.warn("No comparable columns found. Returning an empty DataFrame.")
+        return pl.DataFrame()
+
     return pl.concat(gathered_rows, how="vertical_relaxed")
 
 
