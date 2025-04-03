@@ -180,8 +180,8 @@ def get_column_dtype_differences(
                     column_name=same_col,
                     difference_type=ColumnDataTypeDifferenceType.DIFFERENT_TYPE,
                     more_information={
-                        df0_name: df0_dtypes[same_col],
-                        df1_name: df1_dtypes[same_col],
+                        df0_name: f"{df0_dtypes[same_col]}",
+                        df1_name: f"{df1_dtypes[same_col]}",
                     },
                 )
             )
@@ -198,8 +198,8 @@ def get_column_dtype_differences(
                         column_name=same_col,
                         difference_type=ColumnDataTypeDifferenceType.DIFFERENT_TIMEZONE,
                         more_information={
-                            df0_name: df0[same_col][0].tzinfo,
-                            df1_name: df1[same_col][0].tzinfo,
+                            df0_name: f"{df0[same_col][0].tzinfo}",
+                            df1_name: f"{df1[same_col][0].tzinfo}",
                         },
                     )
                 )
@@ -214,8 +214,8 @@ def get_column_dtype_differences(
                         column_name=same_col,
                         difference_type=ColumnDataTypeDifferenceType.DIFFERENT_TIME_PRECISION,
                         more_information={
-                            df0_name: df0[same_col].dtype.time_unit,
-                            df1_name: df1[same_col].dtype.time_unit,
+                            df0_name: f"{df0[same_col].dtype.time_unit}",
+                            df1_name: f"{df1[same_col].dtype.time_unit}",
                         },
                     )
                 )

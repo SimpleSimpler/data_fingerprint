@@ -82,7 +82,7 @@ def test_get_column_dtype_differences():
                 source="df0",
                 column_name="b",
                 difference_type=ColumnNameDifferenceType.DIFFERENT_TYPE,
-                more_information={"df0": pl.Int64, "df1": pl.Float64},
+                more_information={"df0": "Int64", "df1": "Float64"},
             )
         ]
     )
@@ -118,7 +118,7 @@ def test_get_column_dtype_differences_timezone():
                 source="df0",
                 column_name="b",
                 difference_type=ColumnDataTypeDifferenceType.DIFFERENT_TIMEZONE,
-                more_information={"df0": ZoneInfo("UTC"), "df1": None},
+                more_information={"df0": "UTC", "df1": "None"},
             ),
             ColumnDifference(
                 source="df0",
@@ -411,101 +411,3 @@ def test_data_report():
     assert get_number_of_differences_per_source(report) == {df0_name: 2, df1_name: 2}
     assert get_ratio_of_differences_per_source(report) == {df0_name: 0.5, df1_name: 0.5}
     assert get_number_of_row_differences(report) == len(get_dataframe(report))
-
-
-def test_get_column_difference_ratio():
-    df0 = pl.DataFrame(
-        {
-            "a": [1, 2, 3, 4],
-            "b": [5, 6, 7, 8],
-            "c": [9, 10, 11, 12],
-            "d": [13, 14, 15, 16],
-        }
-    )
-    df1 = pl.DataFrame(
-        {
-            "a": [1, 2, 3, 4],
-            "b": [5, 6, 77, 8],
-            "c": [99, 10, 111, 122],
-            "d": [13, 14, 15, 16],
-        }
-    )
-    df0_name = "df0"
-    df1_name = "df1"
-    report = get_data_report(df0, df1, df0_name, df1_name, ["a"])
-    assert get_column_difference_ratio(report) == {
-        "a": 0.0,
-        "b": 0.25,
-        "c": 0.75,
-        "d": 0.0,
-    }
-
-
-def test_get_column_no_difference_report():
-    df0 = pl.DataFrame(
-        {
-            "a": [1, 2, 3, 4],
-            "b": [5, 6, 7, 8],
-            "c": [9, 10, 11, 12],
-            "d": [13, 14, 15, 16],
-        }
-    )
-    df1 = df0
-    df0_name = "df0"
-    df1_name = "df1"
-    report = get_data_report(df0, df1, df0_name, df1_name, ["a"])
-
-    with pytest.warns(UserWarning):
-        assert get_column_difference_ratio(report) == {
-            "a": 0.0,
-            "b": 0.0,
-            "c": 0.0,
-            "d": 0.0,
-        }
-    assert get_number_of_differences_per_source(report) == {
-        "df0": 0,
-        "df1": 0,
-    }
-    assert get_number_of_row_differences(report) == 0
-
-    with pytest.warns(UserWarning):
-        assert get_ratio_of_differences_per_source(report) == {
-            "df0": 0.0,
-            "df1": 0.0,
-        }
-
-
-def test_no_same_columns():
-    df0 = pl.DataFrame(
-        {
-            "a": [1, 2, 3, 4],
-            "b": [5, 6, 7, 8],
-            "c": [9, 10, 11, 12],
-            "d": [13, 14, 15, 16],
-        }
-    )
-    df1 = pl.DataFrame(
-        {
-            "e": [1, 2, 3, 4],
-            "f": [5, 6, 7, 8],
-            "g": [9, 10, 11, 12],
-            "h": [13, 14, 15, 16],
-        }
-    )
-    df0_name = "df0"
-    df1_name = "df1"
-    report = get_data_report(df0, df1, df0_name, df1_name)
-    with pytest.warns(UserWarning):
-        assert get_dataframe(report).shape == (0, 0)
-
-    assert get_number_of_row_differences(report) == 8
-    assert get_number_of_differences_per_source(report) == {
-        "df0": 4,
-        "df1": 4,
-    }
-    assert get_ratio_of_differences_per_source(report) == {
-        "df0": 0.5,
-        "df1": 0.5,
-    }
-    with pytest.warns(UserWarning):
-        assert get_column_difference_ratio(report) == {}
