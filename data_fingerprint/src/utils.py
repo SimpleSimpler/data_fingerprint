@@ -202,11 +202,13 @@ def get_column_difference_ratio(data_report: DataReport) -> dict[str, float]:
     """
     Get the ratio of column differences per source from a :class:`data_compare.src.models.DataReport` object."
 
-    This function only works if the data report has grouping differences.
-    If not, it will return 0 for all columns.
+    This function onlymakes sense if the data report has grouping differences.
+    If not, it will return the same ratio for all columns.
+
+    If no differences were found, it will return 0 for all columns.
 
     Raises:
-        UserWarning: If no grouping differences are found.
+        UserWarning: If no differences were found.
 
     Args:
         data_report (:class:`data_compare.src.models.DataReport`): The :class:`data_compare.src.models.DataReport` object.
@@ -218,6 +220,8 @@ def get_column_difference_ratio(data_report: DataReport) -> dict[str, float]:
 
     for rd in data_report.row_differences:
         if isinstance(rd, RowDifference):
+            for column in data_report.comparable_columns:
+                counter[column] += rd.number_of_occurrences * 2
             continue
 
         for column in rd.column_differences:
