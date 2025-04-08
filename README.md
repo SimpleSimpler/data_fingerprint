@@ -50,14 +50,26 @@ from data_fingerprint.src.comparator import get_data_report
 from data_fingerprint.src.models import DataReport
 
 # Create two sample datasets
-df1 = pl.DataFrame(
-    {"id": [1, 2, 3, 4], "name": ["Alice", "Bob", "Charlie", "George"], "age": [25, 30, 35, 26], "height": [170, 180, 175, 160], "weight": [60, 70, 75, 65]}
+df0 = pl.DataFrame(
+    {
+        "id": [1, 2, 3, 4],
+        "name": ["Alice", "Bob", "Charlie", "George"],
+        "age": [25, 30, 35, 26],
+        "height": [170, 180, 175, 160],
+        "weight": [60, 70, 75, 65],
+    }
 )
-df2 = pl.DataFrame(
-    {"id": [1, 2, 3], "name": ["Alice", "Bob", "David"], "age": [25, 30, 35], "weight": ["60", "70", "75"], "married": [True, False, True]}
+df1 = pl.DataFrame(
+    {
+        "id": [1, 2, 3],
+        "name": ["Alice", "Bob", "David"],
+        "age": [25, 30, 35],
+        "weight": ["60", "70", "75"],
+        "married": [True, False, True],
+    }
 )
 # Generate a data report comparing the two datasets
-report: DataReport = get_data_report(df1, df2, "df_0", "df_1", grouping_columns=["id"])
+report: DataReport = get_data_report(df0, df1, "df_0", "df_1", grouping_columns=["id"])
 print(report.model_dump_json(indent=4))
 ```
 Output:
@@ -206,6 +218,10 @@ When talking about `RowGroupDifference` we have the following information:
 
 Now when we have differences we can get tabular information about those differences:
 ```python
+print(get_dataframe(report))
+```
+Output:
+```python
 shape: (3, 4)
 ┌─────┬─────┬─────────┬────────┐
 │ age ┆ id  ┆ name    ┆ source │
@@ -274,4 +290,4 @@ Contributions are welcome! Please open an issue or submit a pull request on GitH
 
 ## Contact
 
-For any questions or feedback, please contact [your email].
+For any questions or feedback, please contact me over github.
