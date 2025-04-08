@@ -2,9 +2,18 @@
   <img src="https://imgur.com/EvSWq14.png" />
 </p>
 
+<p align="center">
+  <a href="https://datafingerprinttry.streamlit.app">
+    <img src="https://imgur.com/Wbsks2r.png" width="200"/>
+  </a>
+</p>
+
 # DataFingerprint
 
 **DataFingerprint** is a Python package designed to compare two datasets and generate a detailed report highlighting the differences between them. This tool is particularly useful for data validation, quality assurance, and ensuring data consistency across different sources.
+
+# Try it out on streamlit
+https://datafingerprinttry.streamlit.app
 
 ## Features
 
