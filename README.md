@@ -22,6 +22,7 @@ https://datafingerprinttry.streamlit.app
 - **Row Differences**: Find rows that are present in one dataset but missing in the other, or rows that have different values in corresponding columns.
 - **Paired Row Differences**: Compare rows that have the same primary key or unique identifier in both datasets and identify differences in their values.
 - **Data Report**: Generate a comprehensive report summarizing all the differences found between the two datasets.
+- **Grouping Threshold**: When you use grouping you can specify a threhold for each column to ignore small differences between the same group.
 
 | function                                                        | purpose                                                                   | result                                 |
 |-----------------------------------------------------------------|---------------------------------------------------------------------------|----------------------------------------|
