@@ -16,6 +16,7 @@ from data_fingerprint.src.models import (
     ColumnDifference,
     RowDifference,
     RowGroupDifference,
+    DataReport,
 )
 from data_fingerprint.src.difference_types import (
     ColumnNameDifferenceType,
@@ -411,3 +412,106 @@ def test_data_report():
     assert get_number_of_differences_per_source(report) == {df0_name: 2, df1_name: 2}
     assert get_ratio_of_differences_per_source(report) == {df0_name: 0.5, df1_name: 0.5}
     assert get_number_of_row_differences(report) == len(get_dataframe(report))
+
+
+def test_thresholds_withput_grouping_column():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 3, 3, 4], "b": [1, 2, 3, 10, 10, 15]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 3, 4, 5], "b": [1, 2, 3, 10, 20, 24]})
+    df0_name = "df0"
+    df1_name = "df1"
+    with pytest.warns(UserWarning, match=".*difference_thresholds.*"):
+        report = get_data_report(
+            df0, df1, df0_name, df1_name, difference_thresholds={"a": 1}
+        )
+
+
+def test_thresholds_grouping_thresholds_common_keys():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 3, 3, 4], "b": [1, 2, 3, 10, 10, 15]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 3, 4, 5], "b": [1, 2, 3, 10, 20, 24]})
+    df0_name = "df0"
+    df1_name = "df1"
+    with pytest.warns(UserWarning, match=".*common keys.*"):
+        report = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"a": 1})
+
+
+def test_grouping_thresholds_no_differences():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4], "b": [1.0, 2.0, 3.0, 10.0]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4], "b": [1.0, 2.2, 3.0, 10.0]})
+    df0_name = "df0"
+    df1_name = "df1"
+    report: DataReport = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"b": 1})
+    print(get_dataframe(report))
+    assert get_number_of_row_differences(report) == 0
+
+
+def test_grouping_thresholds_there_are_differences():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4], "b": [1.0, 2.0, 3.0, 10.0]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4], "b": [1.0, 3.0, 3.0, 10.0]})
+    df0_name = "df0"
+    df1_name = "df1"
+    report: DataReport = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"b": 1})
+    print(get_dataframe(report))
+    assert get_number_of_row_differences(report) == 2
+
+
+def test_grouping_thresholds_missing_row():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.0, 10.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4], "b": [1.0, 2.2, 3.0, 10.0]})
+    df0_name = "df0"
+    df1_name = "df1"
+    report: DataReport = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"b": 1})
+    print(get_dataframe(report))
+    assert get_number_of_row_differences(report) == 1
+
+
+def test_grouping_thresholds_difference_on_duplicates():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.0, 11.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.2, 3.0, 10.0, 10.0]})
+    df0_name = "df0"
+    df1_name = "df1"
+    report: DataReport = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"b": 1})
+    print(get_dataframe(report))
+    assert get_number_of_row_differences(report) == 2
+
+
+def test_grouping_thresholds_difference_on_duplicates_multiple():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.1, 10.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.2, 3.0, 10.0, 10.0]})
+    df0_name = "df0"
+    df1_name = "df1"
+    report: DataReport = get_data_report(df0, df1, df0_name, df1_name, ["a"], {"b": 1})
+    print(get_dataframe(report))
+    assert get_number_of_row_differences(report) == 0
+
+
+def test_grouping_threolds_not_same_threshold_column():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.1, 10.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1, 2, 3, 10, 10]})
+    df0_name = "df0"
+    df1_name = "df1"
+    with pytest.raises(ValueError, match=".*Threshold columns.*"):
+        report: DataReport = get_data_report(
+            df0, df1, df0_name, df1_name, ["a"], {"b": 1}
+        )
+
+
+def test_grouping_threshold_not_existing_columns():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.1, 10.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1, 2, 3, 10, 10]})
+    df0_name = "df0"
+    df1_name = "df1"
+    with pytest.raises(ValueError, match=".*Threshold columns.*"):
+        report: DataReport = get_data_report(
+            df0, df1, df0_name, df1_name, ["a"], {"c": 1}
+        )
+
+
+def test_grouping_threshold_not_numeric():
+    df0 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1.0, 2.0, 3.0, 10.1, 10.1]})
+    df1 = pl.DataFrame({"a": [1, 2, 3, 4, 4], "b": [1, 2, 3, 10, 10]})
+    df0_name = "df0"
+    df1_name = "df1"
+    with pytest.raises(ValueError, match=".*Threshold value for .*"):
+        report: DataReport = get_data_report(
+            df0, df1, df0_name, df1_name, ["a"], {"b": "1"}
+        )

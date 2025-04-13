@@ -1,4 +1,6 @@
 from typing import Union, Optional
+import warnings
+import numbers
 
 import polars as pl
 
@@ -11,6 +13,7 @@ from data_fingerprint.src.models import (
 from data_fingerprint.src.utils import (
     convert_to_polars,
     convert_row_differences_to_pandas,
+    is_numeric,
 )
 from data_fingerprint.src.checkers import check_inputs
 from data_fingerprint.src.difference_types import (
@@ -425,8 +428,10 @@ def get_row_differences(
 
 
 def compare_group_column_by_column(
-    data: pl.DataFrame, grouping_columns: list[str]
-) -> list[Union[RowDifference, RowGroupDifference]]:
+    data: pl.DataFrame,
+    grouping_columns: list[str],
+    difference_thresholds: dict[str, float] = {},
+) -> Optional[Union[RowDifference, RowGroupDifference]]:
     """
     Compares the rows of a dataframe (**already**) grouped by the grouping columns.
 
@@ -471,9 +476,10 @@ def compare_group_column_by_column(
     Args:
         data (pl.DataFrame): The dataframe to compare.
         grouping_columns (list[str]): The columns to group by.
+        difference_threshold (dict[str, float]): The threshold for the difference between the rows.
 
     Returns:
-        list[Union[:class:`data_compare.src.models.RowDifference`, :class:`data_compare.src.models.RowGroupDifference`]]: The differences between the rows of the different sources.
+        Optional[Union[:class:`data_compare.src.models.RowDifference`, :class:`data_compare.src.models.RowGroupDifference`]]: The differences between the rows of the different sources.
 
 
     """
@@ -502,7 +508,14 @@ def compare_group_column_by_column(
         if len(data[col].unique()) == 1:
             continue
 
+        if col in difference_thresholds:
+            if abs(data[col].max() - data[col].min()) < difference_thresholds[col]:
+                continue
+
         different_columns.append(col)
+
+    if len(different_columns) == 0:
+        return None
 
     row_grouping_difference: RowGroupDifference = RowGroupDifference(
         sources=sorted(sources),
@@ -533,6 +546,7 @@ def get_row_differences_paired(
     df0_name: str,
     df_1_name: str,
     grouping_columns: list[str],
+    difference_thresholds: dict[str, float] = {},
 ) -> tuple[
     list[str], list[ColumnDifference], list[Union[RowDifference, RowGroupDifference]]
 ]:
@@ -569,6 +583,8 @@ def get_row_differences_paired(
 
     Raises:
         ValueError: If the pairing columns are not the present in both dataframes.
+        ValueError: If the differences thresholds are not provided for existing columns.
+        ValueError: If the differences thresholds are not numeric.
 
     Args:
         df0 (pl.DataFrame): The first dataframe.
@@ -576,6 +592,7 @@ def get_row_differences_paired(
         df0_name (str): The name of the first dataframe.
         df_1_name (str): The name of the second dataframe.
         grouping_columns (list[str]): The columns to group by.
+        difference_thresholds (dict[str, float]): The thresholds for each column.
 
     Returns:
         list[str]: The same columns
@@ -594,6 +611,27 @@ def get_row_differences_paired(
             f"Pairing columns: {grouping_columns}. Same columns: {same_columns}"
         )
 
+    for diff_n, diff_v in difference_thresholds.items():
+        if not isinstance(diff_v, numbers.Number):
+            raise ValueError(
+                f"Threshold value for {diff_n} must be numeric. Current type: {diff_v}"
+            )
+
+    if len(set(difference_thresholds.keys()).difference(same_columns)) > 0:
+        raise ValueError(
+            "Threshold columns must be the same in both dataframes. "
+            f"Threshold columns: {difference_thresholds.keys()}. Same columns: {same_columns}"
+        )
+
+    dtypes_difference_columns = df0.select(difference_thresholds.keys()).dtypes
+    for column, dtype in zip(difference_thresholds.keys(), dtypes_difference_columns):
+        if is_numeric(dtype):
+            continue
+
+        raise ValueError(
+            f"Column {column} must be a numeric type because of the set threshold for the differences. Current type: {dtype}"
+        )
+
     difference_dataframe: pl.DataFrame = convert_row_differences_to_pandas(
         row_differences
     )
@@ -603,8 +641,12 @@ def get_row_differences_paired(
     row_differences: list[Union[RowDifference, RowGroupDifference]] = []
     for name, dat in difference_dataframe.group_by(grouping_columns):
         difference: Union[RowDifference, RowGroupDifference] = (
-            compare_group_column_by_column(dat, grouping_columns)
+            compare_group_column_by_column(dat, grouping_columns, difference_thresholds)
         )
+
+        if difference is None:
+            continue
+
         row_differences.append(difference)
     return same_columns, column_differences, row_differences
 
@@ -617,6 +659,7 @@ def get_data_report(
     df0_name: str,
     df1_name: str,
     grouping_columns: Optional[list[str]] = None,
+    difference_thresholds: dict[str, float] = {},
 ) -> DataReport:
     """
     Get a data report comparing two dataframes.
@@ -752,17 +795,38 @@ def get_data_report(
     Args:
         df0 (pl.DataFrame): The first dataframe.
         df1 (pl.DataFrame): The second dataframe.
+        df0_name (str): The name of the first dataframe.
+        df1_name (str): The name of the second dataframe.
+        grouping_columns (list[str], optional): The columns to group by. Defaults to None.
+        difference_thresholds (dict[str, float], optional): The thresholds for each column. Defaults to None. Used only when `grouping_columns` is not empty.
+
 
     Returns:
         :class:`data_compare.src.models.DataReport`: A data report comparing the two dataframes.
     """
     if grouping_columns is None:
+        if len(difference_thresholds) > 0:
+            warnings.warn(
+                "'difference_thresholds' is only used when grouping_columns is not None",
+                UserWarning,
+            )
+
         same_columns, column_differences, row_differences = get_row_differences(
             df0, df1, df0_name, df1_name
         )
     else:
+        if (
+            set(grouping_columns).intersection(set(difference_thresholds.keys()))
+            != set()
+        ):
+            warnings.warn(
+                f"grouping_columns and difference_thresholds should not have common keys, "
+                f"common keys: {set(grouping_columns).intersection(set(difference_thresholds.keys()))}",
+                UserWarning,
+            )
+
         same_columns, column_differences, row_differences = get_row_differences_paired(
-            df0, df1, df0_name, df1_name, grouping_columns
+            df0, df1, df0_name, df1_name, grouping_columns, difference_thresholds
         )
     return DataReport(
         df0_length=len(df0),
@@ -774,3 +838,6 @@ def get_data_report(
         row_differences=row_differences,
         column_differences=column_differences,
     )
+
+
+# TODO: write tests for thresholds - duplicated values, missing rows, missing duplicated rows, larger threshold, less threshold
