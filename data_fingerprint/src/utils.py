@@ -236,3 +236,20 @@ def get_column_difference_ratio(data_report: DataReport) -> dict[str, float]:
         return {k: 0.0 for k in counter.keys()}
 
     return {k: v / total_grouping_differences for k, v in counter.items()}
+
+
+def is_numeric(dtype: pl.DataType) -> bool:
+    """
+    Check if a given dtype is numeric.
+    This function checks if the dtype is one of the numeric types supported by Polars.
+    We conclude that dtypes:
+    - Int32, Int64, Float32, Float64 are numeric.
+    - Other dtypes are not numeric.
+
+
+    Args:
+        dtype: The dtype to check.
+    Returns:
+        bool: True if the dtype is numeric, False otherwise.
+    """
+    return isinstance(dtype, (pl.Int32, pl.Int64, pl.Float32, pl.Float64))
