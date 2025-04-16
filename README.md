@@ -10,6 +10,22 @@
 
 # DataFingerprint
 
+<p align="center">
+  <a href="https://pepy.tech/project/data-fingerprint">
+    <img alt="Pepy Total Downloads" src="https://img.shields.io/pepy/dt/data-fingerprint">
+  </a>
+  <img alt="PyPI - Version" src="https://img.shields.io/pypi/v/data-fingerprint">
+  <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/data-fingerprint">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue" alt="Python">
+  <img src="https://img.shields.io/badge/Pandas-2C2D72?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas">
+</p>
+
+
+
 **DataFingerprint** is a Python package designed to compare two datasets and generate a detailed report highlighting the differences between them. This tool is particularly useful for data validation, quality assurance, and ensuring data consistency across different sources.
 
 # Try it out on streamlit
